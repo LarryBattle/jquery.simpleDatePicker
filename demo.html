@@ -6,23 +6,34 @@
    <script type="text/javascript" src="jquery.simpleDatePicker.js"></script>
 </head>
 <body>
-   <h2><a href="https://github.com/karlseguin/jquery.simpleDatePicker">jQuery.simpleDatePicker.js</a></h2>
+	<h2>
+		<a href="https://github.com/karlseguin/jquery.simpleDatePicker">jQuery.simpleDatePicker.js</a>
+	</h2>
 	<p>
-		<b>First Date</b><br/>
+		<h3>First Date</h3>
 		<input type="text" id="dateA" class="date" />
 		<input type="button" class="date-trigger" for="dateA" value="Launch Calendar"/>
-		<br>
-		<b>Second Date</b><br/>
+		<h3>Second Date</h3>
 		<input type="text" id="dateB" class="date" />
 		<input type="button" class="date-trigger" for="dateB" value="Launch Calendar"/>
+		<h3>Current Date</h3>
+		<input type="text" id="currentDate" class="date" value="April 01, 2013"/>
+		<input type="button" class="date-trigger" for="currentDate" value="Launch Calendar"/>
 	</p>
-<script type="text/javascript">
-$(document).ready(function() {
-  $('.date').simpleDatePicker();
-  $('.date-trigger').click(function(e) {
-	var id = '#'+ $(e.target).attr("for");
-    $(id).simpleDatePicker({command: 'toggle'});
-    return false;
-  })
-});
-</script>
+	<script type="text/javascript">
+	var setupDatePicker = function(){
+		$('.date').simpleDatePicker();
+		$('.date-trigger').click(function (e) {
+			var id = '#' + $(e.target).attr("for");
+			$(id).simpleDatePicker({
+				command : 'toggle'
+			});
+			return false;
+		});
+	};
+	$(document).ready(function () {
+		setupDatePicker();
+	});
+	</script>
+</body>
+</html>
