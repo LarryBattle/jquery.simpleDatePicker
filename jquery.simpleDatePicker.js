@@ -1,4 +1,5 @@
-(function($){
+(function($, root){
+  "use strict";
   $.fn.simpleDatePicker = function(opts) {
 
     if (opts && opts.command == 'toggle') {
@@ -10,18 +11,32 @@
     var months = new Array('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
     var abbreviations = new Array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec');
     var daySelector = 'td:not(.m):not(:empty)';
-
+  defaults.format = function(date) {
+		return months[date.getMonth()] + ' ' + date.getDate() + ' ' + date.getFullYear();
+	};
+	var isValidDate = function(date){
+		return (new Date(date)).valueOf().toString() !== "NaN";
+	};
+	var getDateFromInput = function(input){	
+		var val = new Date($(input).val());
+		return new Date();
+	};
     return this.each(function() {
       if (this.simpleDatePicker) { return false; }
-      var options = $.extend({}, defaults, opts);
-      var $input = $(this);
-      var $container = currentDate = mode = null;
+      var options = $.extend({}, defaults, opts),
+		$input = $(this),
+		$container = null,
+		currentDate = new Date(),
+		mode = null;
+		
       var self = {
         initialize: function() {
           $input.click(function (event) {self.show(); return false;}).keydown(function(e){ if (e.keyCode == 13) { self.entered(); return false; }});
-          $(document).keydown(function(e) { if (e.keyCode == 27) { self.hide(); }}).click(self.hide);
+          $(root.document).keydown(function(e) { if (e.keyCode == 27) { self.hide(); }}).click(self.hide);
+          var inputDate = new Date($input.val());
+          var initDate = isNaN(inputDate.valueOf()) ? new Date() : inputDate;
           $container = self.initializeContainer().hide()
-            .append(self.buildMonth(new Date()))
+            .append(self.buildMonth(initDate))
             .delegate(daySelector, 'click', self.clicked)
             .delegate('td:not(:empty)', 'hover', self.hover)
             .delegate('.prev', 'click', self.loadPrevious)
@@ -31,7 +46,13 @@
             .click(function(){return false;});
         },
         parseDate: function(value) { return new Date(value); },
-        toggle: function() { $container.is(':visible') ? self.hide() : self.show(); },
+        toggle: function() { 
+			if($container.is(':visible')){
+				self.hide();
+			}else{
+				self.show();
+			}
+		},
         show: function() { $container.show(); },
         hide: function() { $container.hide(); },
         loadPrevious: function() {
@@ -55,7 +76,7 @@
             $cell.addClass('selected');
             var date = new Date(currentDate.getFullYear(), currentDate.getMonth(), $cell.text());
             $input.val(self.format(date)).change();
-            if (options.selected != null) { options.selected(date, $cell); }
+            if (typeof options.selected === "function") { options.selected(date, $cell); }
             self.hide();
           }
         },
@@ -70,7 +91,7 @@
         },
         pickYear: function() {
           mode = 'year';
-          var table = document.createElement('table');
+          var table = root.document.createElement('table');
           var start = currentDate.getFullYear() - 6;
           if (options.minimumDate && options.minimumDate > start) { start = options.minimumDate; }
           for (var i = 0; i < 3; ++i) {
@@ -84,7 +105,7 @@
         },
         pickMonth: function() {
           mode = 'month';
-          var table = document.createElement('table');
+          var table = root.document.createElement('table');
           var header = table.insertRow(-1);
           var year = header.insertCell(-1);
           year.colSpan = 4;
@@ -109,7 +130,7 @@
           var firstDay = first.getDay();
           var totalDays = last.getDate();
           var weeks = Math.ceil((totalDays + firstDay) / 7);
-          var table = document.createElement('table');
+          var table = root.document.createElement('table');
 
           for (var i = 0, count = 1; i < weeks; ++i) {
             var row = table.insertRow(-1);
@@ -137,12 +158,11 @@
           cell.className = 'm '; //very stupid IE (all versions) fix
           cell.colSpan = colspan;
         },
-        format: function(date) {
-          return months[date.getMonth()] + ' ' + date.getDate() + ' ' + date.getFullYear();
-        }
+        format: options.format
       };
       this.simpleDatePicker = self;
       self.initialize();
     });
-  }
-})(jQuery);
+  };
+  $.fn.simpleDatePicker.version = "1.2";
+})(jQuery, window);
